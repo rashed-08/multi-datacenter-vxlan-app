@@ -1,0 +1,13 @@
+{
+  "services": [
+    "gateway-nginx",
+    "user-nginx",
+    "catalog-nginx",
+    "order-nginx",
+    "payment-nginx",
+    "notify-nginx",
+    "analytics-nginx",
+    "discovery-nginx"
+  ],
+  "datacenter": "DC3"
+}

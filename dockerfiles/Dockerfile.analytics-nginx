@@ -1,0 +1,7 @@
+FROM nginx:alpine
+
+COPY configs/nginx/analytics-nginx.conf /etc/nginx/nginx.conf
+COPY data/service-responses/analytics-nginx /usr/share/nginx/html/
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+ CMD curl -f http://localhost:8085/reports.json || exit 1

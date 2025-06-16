@@ -1,0 +1,9 @@
+{
+  "service": "Analytics Service",
+  "report": {
+    "total_users": 1500,
+    "total_orders": 450,
+    "total_revenue": 123456.78
+  },
+  "datacenter": "DC3"
+}
