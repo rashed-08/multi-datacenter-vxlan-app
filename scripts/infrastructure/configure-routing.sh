@@ -1,11 +1,25 @@
 #!/bin/bash
 
-echo "Adding routing between Docker networks..."
+ROUTING_FILE="configs/network/routing-tables.conf"
 
-ip route add 10.300.0.0/16 via 10.200.1.1
+if [ ! -f "$ROUTING_FILE" ]; then
+  echo "Routing table file not found: $ROUTING_FILE"
+  exit 1
+fi
 
-ip route add 10.400.0.0/16 via 10.200.1.1
+while read -r line; do
+  # Skip empty lines or comments
+  [[ "$line" =~ ^#.*$ || -z "$line" ]] && continue
 
-ip route add 10.200.0.0/16 via 10.300.1.1
+  # Read values from each line
+  SRC_DC=$(echo "$line" | awk '{print $1}')
+  DEST_SUBNET=$(echo "$line" | awk '{print $2}')
+  NEXT_HOP=$(echo "$line" | awk '{print $3}')
 
-echo "Routing configuration completed."
+  echo "Adding route: $DEST_SUBNET via $NEXT_HOP (from $SRC_DC)"
+  sudo ip route add "$DEST_SUBNET" via "$NEXT_HOP" 2>/dev/null || \
+  echo "Route may already exist or failed for: $DEST_SUBNET"
+
+done < "$ROUTING_FILE"
+
+echo "Routing setup complete."
