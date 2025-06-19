@@ -1,16 +1,36 @@
 #!/bin/bash
 
-echo "Cleaning up VXLAN interfaces..."
+set -e
 
-sudo ip addr del 10.200.1.1/16 dev vxlan200 2>/dev/null
-sudo ip addr del 10.300.1.1/16 dev vxlan300 2>/dev/null
-sudo ip addr del 10.400.1.1/16 dev vxlan400 2>/dev/null
+# Load VXLAN config
+source configs/network/vxlan-config.sh
 
-sudo ip link del vxlan200 2>/dev/null
-sudo ip link del vxlan300 2>/dev/null
-sudo ip link del vxlan400 2>/dev/null
+echo "[🧹] Cleaning up VXLAN interfaces using config..."
 
-sudo ip route del 10.300.0.0/16 via 10.200.1.1 2>/dev/null
-sudo ip route del 10.400.0.0/16 via 10.200.1.1 2>/dev/null
+# DC1
+echo "→ Removing vxlan${VXLAN_DC1_ID}..."
+sudo ip addr del ${VXLAN_DC1_GATEWAY}/16 dev vxlan${VXLAN_DC1_ID} 2>/dev/null || true
+sudo ip link del vxlan${VXLAN_DC1_ID} 2>/dev/null || true
 
-echo "VXLAN interfaces cleaned up successfully."
+# DC2
+echo "→ Removing vxlan${VXLAN_DC2_ID}..."
+sudo ip addr del ${VXLAN_DC2_GATEWAY}/16 dev vxlan${VXLAN_DC2_ID} 2>/dev/null || true
+sudo ip link del vxlan${VXLAN_DC2_ID} 2>/dev/null || true
+
+# DC3
+echo "→ Removing vxlan${VXLAN_DC3_ID}..."
+sudo ip addr del ${VXLAN_DC3_GATEWAY}/16 dev vxlan${VXLAN_DC3_ID} 2>/dev/null || true
+sudo ip link del vxlan${VXLAN_DC3_ID} 2>/dev/null || true
+
+# Remove routes (if added)
+echo "→ Cleaning up VXLAN static routes..."
+sudo ip route del 10.300.0.0/16 via ${VXLAN_DC1_GATEWAY} 2>/dev/null || true
+sudo ip route del 10.400.0.0/16 via ${VXLAN_DC1_GATEWAY} 2>/dev/null || true
+
+sudo ip route del 10.200.0.0/16 via ${VXLAN_DC2_GATEWAY} 2>/dev/null || true
+sudo ip route del 10.400.0.0/16 via ${VXLAN_DC2_GATEWAY} 2>/dev/null || true
+
+sudo ip route del 10.200.0.0/16 via ${VXLAN_DC3_GATEWAY} 2>/dev/null || true
+sudo ip route del 10.300.0.0/16 via ${VXLAN_DC3_GATEWAY} 2>/dev/null || true
+
+echo "VXLAN cleanup complete."

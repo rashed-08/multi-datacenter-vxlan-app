@@ -4,6 +4,7 @@ setup-infrastructure:
 	bash scripts/infrastructure/configure-routing.sh
 cleanup-infrastructure:
 	bash scripts/infrastructure/cleanup-vxlan.sh
+	bash scripts/infrastructure/cleanup-routing.sh
 show-network-status:
 	docker network ls
 validate-infrastructure:
@@ -11,7 +12,7 @@ validate-infrastructure:
 setup-docker-network:
 	bash scripts/deployment/deploy-services.sh
 cleanup-docker-network:
-	bash scripts/infrastructure/cleanup-docker-network.sh
+	bash scripts/infrastructure/cleanup-docker-networks.sh
 
 # Build
 build-all-images: build-user build-catalog build-gateway build-order build-payment build-notify build-analytics build-discovery 
