@@ -2,7 +2,7 @@
 
 set -e
 
-# Step 1: Load configuration
+# Load configuration
 source configs/network/vxlan-config.sh
 
 echo "Creating Docker networks..."

@@ -6,9 +6,9 @@ echo "Applying firewall rules..."
 sudo iptables -A INPUT -p udp --dport 4789 -j ACCEPT
 
 # Allow internal Docker network ranges (simulated DC subnets)
-sudo iptables -A INPUT -s 10.200.0.0/16 -j ACCEPT
-sudo iptables -A INPUT -s 10.300.0.0/16 -j ACCEPT
-sudo iptables -A INPUT -s 10.400.0.0/16 -j ACCEPT
+sudo iptables -A INPUT -s 10.20.0.0/16 -j ACCEPT
+sudo iptables -A INPUT -s 10.30.0.0/16 -j ACCEPT
+sudo iptables -A INPUT -s 10.40.0.0/16 -j ACCEPT
 
 # Optional: allow loopback & local
 sudo iptables -A INPUT -i lo -j ACCEPT

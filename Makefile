@@ -8,7 +8,7 @@ cleanup-infrastructure:
 show-network-status:
 	docker network ls
 validate-infrastructure:
-	ping -c 2 10.200.1.1
+	ping -c 2 10.20.1.1
 setup-docker-network:
 	bash scripts/deployment/deploy-services.sh
 cleanup-docker-network:
@@ -46,7 +46,7 @@ cleanup-services:
 
 # Testing
 test-connectivity:
-	ping -c 2 10.200.1.1
+	ping -c 2 10.20.1.1
 test-services:
 	curl -f http://localhost:8080/status.json || echo "User service"
 	curl -f http://localhost:8081/products.json || echo "Catalog service"

@@ -10,9 +10,9 @@ Each datacenter is connected using simulated VXLAN tunnels.
 
 | Datacenter | Region         | VXLAN ID | Subnet        | Gateway IP    |
 |------------|----------------|----------|---------------|---------------|
-| DC1        | North America  | 200      | 10.200.0.0/16 | 10.200.1.1    |
-| DC2        | Europe         | 300      | 10.300.0.0/16 | 10.300.1.1    |
-| DC3        | Asia-Pacific   | 400      | 10.400.0.0/16 | 10.400.1.1    |
+| DC1        | North America  | 20      | 10.20.0.0/16 | 10.20.1.1    |
+| DC2        | Europe         | 30      | 10.30.0.0/16 | 10.30.1.1    |
+| DC3        | Asia-Pacific   | 40      | 10.40.0.0/16 | 10.40.1.1    |
 
 - **VXLAN ID** is unique per DC to ensure isolation.
 - Docker networks are used to simulate VXLAN bridges.
@@ -41,10 +41,10 @@ Each datacenter has logically separated network tiers:
 
 Routing plan (conceptual):
 
-From DC1 (10.200.0.0/16) to:
-    - DC2 (10.300.0.0/16) → via 10.200.1.1
-    - DC3 (10.400.0.0/16) → via 10.200.1.1
+From DC1 (10.20.0.0/16) to:
+    - DC2 (10.30.0.0/16) → via 10.20.1.1
+    - DC3 (10.40.0.0/16) → via 10.20.1.1
 
-From DC2 (10.300.0.0/16) to:
-    - DC1 (10.200.0.0/16) → via 10.300.1.1
-    - DC3 (10.400.0.0/16) → via 10.300.1.1
+From DC2 (10.30.0.0/16) to:
+    - DC1 (10.20.0.0/16) → via 10.30.1.1
+    - DC3 (10.40.0.0/16) → via 10.30.1.1

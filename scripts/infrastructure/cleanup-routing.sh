@@ -2,7 +2,7 @@
 
 ROUTING_FILE="configs/network/routing-tables.conf"
 
-echo "[🧹] Cleaning up static routes from $ROUTING_FILE..."
+echo "Cleaning up static routes from $ROUTING_FILE..."
 
 if [ ! -f "$ROUTING_FILE" ]; then
   echo "Routing config file not found."

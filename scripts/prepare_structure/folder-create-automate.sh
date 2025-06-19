@@ -55,4 +55,4 @@ mkdir -p docs
 touch docs/setup-guide.md
 touch docs/troubleshooting.md
 
-echo "📁 Project structure created successfully."
+echo "Project structure created successfully."
