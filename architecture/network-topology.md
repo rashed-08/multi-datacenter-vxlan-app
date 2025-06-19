@@ -1,50 +1,48 @@
-# Network Architecture Specifications
+# Network Topology
 
-This document describes the complete network design used in the multi-datacenter microservices platform. It includes VXLAN implementation, subnet planning, tier segmentation, and inter-datacenter routing strategy.
-
----
-
-## VXLAN Overlay Networks
-
-Each datacenter is connected using simulated VXLAN tunnels.
-
-| Datacenter | Region         | VXLAN ID | Subnet        | Gateway IP    |
-|------------|----------------|----------|---------------|---------------|
-| DC1        | North America  | 20      | 10.20.0.0/16 | 10.20.1.1    |
-| DC2        | Europe         | 30      | 10.30.0.0/16 | 10.30.1.1    |
-| DC3        | Asia-Pacific   | 40      | 10.40.0.0/16 | 10.40.1.1    |
-
-- **VXLAN ID** is unique per DC to ensure isolation.
-- Docker networks are used to simulate VXLAN bridges.
+This project simulates a multi-datacenter environment using Docker and VXLAN tunneling.
 
 ---
 
-## Multi-Tier Network Segmentation
+## Datacenter Overview
 
-Each datacenter has logically separated network tiers:
+| DC | Region         | VXLAN ID | Subnet          | Gateway       |
+|----|----------------|----------|------------------|---------------|
+| DC1| North America  | 20      | 10.10.0.0/16     | 10.10.1.1     |
+| DC2| Europe         | 30      | 10.20.0.0/16     | 10.20.1.1     |
+| DC3| Asia-Pacific   | 40      | 10.30.0.0/16     | 10.30.1.1     |
 
-| Tier        | Purpose                       | Example Services             |
-|-------------|-------------------------------|------------------------------|
-| Web Tier    | External entry point          | Gateway-Nginx                |
-| App Tier    | Core business logic           | User, Catalog, Order, Payment |
-| Data Tier   | Analytics, Discovery, Logs    | Analytics, Discovery         |
+---
 
-- Though physically on the same host, containers are logically grouped by tier.
-- Tier-based separation helps in applying access control and diagnostics.
+## VXLAN Tunnel Mapping
+
+- VXLAN interfaces:
+  - DC1 → `vxlan20`
+  - DC2 → `vxlan30`
+  - DC3 → `vxlan40`
+- VXLAN Port: 4789
+- Multicast Group: `239.1.1.1`
+- MTU: 1450
 
 ---
 
 ## Inter-Datacenter Routing
 
-- Basic routing is enabled to allow services in one DC to talk to another.
-- Example: Order service in DC1 can call Payment in DC2 via internal IP.
+| Source DC | Destination Subnet | Next Hop      |
+|-----------|--------------------|---------------|
+| DC1       | 10.20.0.0/16       | 10.10.1.1     |
+| DC1       | 10.30.0.0/16       | 10.10.1.1     |
+| DC2       | 10.10.0.0/16       | 10.20.1.1     |
+| DC2       | 10.30.0.0/16       | 10.20.1.1     |
+| DC3       | 10.10.0.0/16       | 10.30.1.1     |
+| DC3       | 10.20.0.0/16       | 10.30.1.1     |
 
-Routing plan (conceptual):
+---
 
-From DC1 (10.20.0.0/16) to:
-    - DC2 (10.30.0.0/16) → via 10.20.1.1
-    - DC3 (10.40.0.0/16) → via 10.20.1.1
+## Multi-Tier Network Segmentation
 
-From DC2 (10.30.0.0/16) to:
-    - DC1 (10.20.0.0/16) → via 10.30.1.1
-    - DC3 (10.40.0.0/16) → via 10.30.1.1
+| Tier         | Services                       | Description                   |
+|--------------|-------------------------------|-------------------------------|
+| Web Tier     | Gateway-Nginx                 | Entry point for all traffic  |
+| App Tier     | User, Order, Catalog, Payment, Notify | Core business logic     |
+| Data Tier    | Analytics, Discovery          | Monitoring, Reporting, Registry |

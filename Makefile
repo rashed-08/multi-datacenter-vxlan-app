@@ -9,8 +9,6 @@ show-network-status:
 	docker network ls
 validate-infrastructure:
 	ping -c 2 10.20.1.1
-setup-docker-network:
-	bash scripts/deployment/deploy-services.sh
 cleanup-docker-network:
 	bash scripts/infrastructure/cleanup-docker-networks.sh
 
@@ -22,7 +20,9 @@ build-user:
 build-catalog:
 	docker build -f dockerfiles/Dockerfile.catalog-nginx -t catalog-nginx .
 build-gateway:
-	docker build -f dockerfiles/Dockerfile.gateway-nginx -t gateway-nginx .
+	docker build -f dockerfiles/Dockerfile.gateway-nginx -t gateway-nginx:dc1 --build-arg HTML_PATH=data/service-responses/gateway-nginx-dc1/index.html .
+	docker build -f dockerfiles/Dockerfile.gateway-nginx -t gateway-nginx:dc2 --build-arg HTML_PATH=data/service-responses/gateway-nginx-dc2/index.html .
+	docker build -f dockerfiles/Dockerfile.gateway-nginx -t gateway-nginx:dc3 --build-arg HTML_PATH=data/service-responses/gateway-nginx-dc3/index.html .
 build-order:
 	docker build -f dockerfiles/Dockerfile.order-nginx -t order-nginx .
 build-payment:
@@ -48,7 +48,7 @@ cleanup-services:
 test-connectivity:
 	ping -c 2 10.20.1.1
 test-services:
-	curl -f http://localhost:8080/status.json || echo "User service"
+	curl -f http://localhost:8080/users.json || echo "User service"
 	curl -f http://localhost:8081/products.json || echo "Catalog service"
 health-check:
 	docker ps
