@@ -48,22 +48,20 @@ Follow these steps to reset and verify your infrastructure:
 
 1. Re-run the cleanup process to remove all VXLAN, routing, and networks:
 
-    ```bash
-    make cleanup-infrastructure
-    ```
-
+```bash
+make cleanup-infrastructure
+```
+---
 2. Set up the infrastructure again from scratch:
-
-    ```bash
-    make setup-infrastructure
-    ```
-
+```bash
+make setup-infrastructure
+```
+---
 3. Run all basic tests to ensure everything is working:
-
-    ```bash
-    make test
-    ```
-
+```bash
+make test
+```
+---
 If problems persist, manually inspect the following:
 
 - `ip route show` – Check if routing is correct  
