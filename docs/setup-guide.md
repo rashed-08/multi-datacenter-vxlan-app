@@ -46,8 +46,8 @@ make setup-infrastructure
 ```markdown
 This will:
 
-- Create 3 VXLAN interfaces (`vxlan200`, `vxlan300`, `vxlan400`)
-- Assign gateway IPs (`10.10.1.1`, `10.20.1.1`, `10.30.1.1`)
+- Create 3 VXLAN interfaces (`vxlan20`, `vxlan30`, `vxlan40`)
+- Assign gateway IPs (`10.20.1.1`, `10.30.1.1`, `10.30.1.1`)
 - Create Docker networks for each datacenter
 - Configure static routing between datacenters
 ```
