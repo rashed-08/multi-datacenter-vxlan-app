@@ -98,9 +98,17 @@ test-services:
 	curl -s http://localhost:8090 | grep "services" || echo "Discovery Service not responding"
 test-cross-dc:
 	@echo "Testing cross-DC reachability (within Docker network)"
-	docker exec gateway-dc1 ping -c 1 order-nginx-dc2 || echo "DC1 ➝ DC2 order-nginx not reachable"
-	docker exec gateway-dc2 ping -c 1 discovery-nginx || echo "DC2 ➝ DC3 discovery-nginx not reachable"
-	docker exec payment-nginx ping -c 1 analytics-nginx || echo "DC2 ➝ DC3 analytics not reachable"
+	@ORDER_IP=$$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' order-nginx-dc2); \
+	echo "Pinging ORDER Service (DC2) from Gateway (DC1): $$ORDER_IP"; \
+	docker exec gateway-dc1 ping -c 1 $$ORDER_IP || echo "DC1 ➝ DC2 order-nginx not reachable"
+	
+	@DISCOVERY_IP=$$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' discovery-nginx); \
+	echo "Pinging Discovery (DC3) from Gateway (DC2): $$DISCOVERY_IP"; \
+	docker exec gateway-dc2 ping -c 1 $$DISCOVERY_IP || echo "DC2 ➝ DC3 discovery-nginx not reachable"
+
+	@ANALYTICS_IP=$$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' analytics-nginx); \
+	echo "Pinging Analytics (DC3) from Payment (DC2): $$ANALYTICS_IP"; \
+	docker exec payment-nginx ping -c 1 $$ANALYTICS_IP || echo "DC2 ➝ DC3 analytics-nginx not reachable"
 health-check:
 	@echo "Running health checks for all containers..."
 	@docker ps --format "table {{.Names}}\t{{.Status}}" | grep -v "Exited" || echo "Some containers are down"
