@@ -81,9 +81,9 @@ test: test-connectivity test-services test-cross-dc health-check
 
 test-connectivity:
 	@echo "Pinging Gateways & Services (VXLAN Gateway IPs)"
-	ping -c 1 10.10.1.1 || echo "DC1 Gateway not reachable"
-	ping -c 1 10.20.1.1 || echo "DC2 Gateway not reachable"
-	ping -c 1 10.30.1.1 || echo "DC3 Gateway not reachable"
+	ping -c 1 10.20.1.1 || echo "DC1 Gateway not reachable"
+	ping -c 1 10.30.1.1 || echo "DC2 Gateway not reachable"
+	ping -c 1 10.40.1.1 || echo "DC3 Gateway not reachable"
 test-services:
 	@echo "Checking basic service responses (localhost ports)"
 	curl -s http://localhost | grep "DC1" || echo "Gateway DC1 not responding"
