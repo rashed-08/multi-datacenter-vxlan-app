@@ -32,9 +32,9 @@ show-routing-table:
 	ip route show
 validate-infrastructure:
 	@echo "Validating connectivity and interfaces..."
-	ping -c 2 10.10.1.1 || echo "⚠️ DC1 gateway unreachable"
-	ping -c 2 10.20.1.1 || echo "⚠️ DC2 gateway unreachable"
-	ping -c 2 10.30.1.1 || echo "⚠️ DC3 gateway unreachable"
+	ping -c 2 10.10.1.1 || echo "DC1 gateway unreachable"
+	ping -c 2 10.20.1.1 || echo "DC2 gateway unreachable"
+	ping -c 2 10.30.1.1 || echo "DC3 gateway unreachable"
 
 # Build
 build-all-images: build-user build-catalog build-gateway build-order build-payment build-notify build-analytics build-discovery
@@ -77,8 +77,37 @@ cleanup-services:
 	docker rmi -f user-nginx catalog-nginx gateway-nginx:dc1 gateway-nginx:dc2 gateway-nginx:dc3 order-nginx payment-nginx notify-nginx analytics-nginx discovery-nginx || true
 
 # Testing
+test: test-connectivity test-services test-cross-dc health-check
+
 test-connectivity:
-	ping -c 2 10.20.1.1
+	@echo "Pinging Gateways & Services (VXLAN Gateway IPs)"
+	ping -c 1 10.10.1.1 || echo "DC1 Gateway not reachable"
+	ping -c 1 10.20.1.1 || echo "DC2 Gateway not reachable"
+	ping -c 1 10.30.1.1 || echo "DC3 Gateway not reachable"
 test-services:
-	curl -f http://localhost:8080/users.json || echo "User service"
-	curl -f http://localhost:8081/products.json || echo "Catalog service"
+	@echo "Checking basic service responses (localhost ports)"
+	curl -s http://localhost | grep "DC1" || echo "Gateway DC1 not responding"
+	curl -s http://localhost:9090 | grep "DC2" || echo "Gateway DC2 not responding"
+	curl -s http://localhost9091 | grep "DC3" || echo "Gateway DC3 not responding"
+	curl -s http://localhost:8081 | grep "user" || echo "User Service not responding"
+	curl -s http://localhost:8082 | grep "catalog" || echo "Catalog Service not responding"
+	curl -s http://localhost:8083 | grep "order" || echo "Order Service (DC1) not responding"
+	curl -s http://localhost:8085 | grep "payment" || echo "Payment Service not responding"
+	curl -s http://localhost:8086 | grep "notify" || echo "Notify Service not responding"
+	curl -s http://localhost:8089 | grep "analytics" || echo "Analytics Service not responding"
+	curl -s http://localhost:8090 | grep "services" || echo "Discovery Service not responding"
+test-cross-dc:
+	@echo "Testing cross-DC reachability (within Docker network)"
+	docker exec gateway-dc1 ping -c 1 order-nginx-dc2 || echo "DC1 ➝ DC2 order-nginx not reachable"
+	docker exec gateway-dc2 ping -c 1 discovery-nginx || echo "DC2 ➝ DC3 discovery-nginx not reachable"
+	docker exec payment-nginx ping -c 1 analytics-nginx || echo "DC2 ➝ DC3 analytics not reachable"
+health-check:
+	@echo "Running health checks for all containers..."
+	@docker ps --format "table {{.Names}}\t{{.Status}}" | grep -v "Exited" || echo "Some containers are down"
+show-logs:
+	@echo "Displaying logs for all services..."
+	@docker ps --format "{{.Names}}" | while read container; do \
+	  echo "==== Logs for $$container ===="; \
+	  docker logs $$container --tail=5; \
+	  echo ""; \
+	done
