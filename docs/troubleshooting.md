@@ -14,6 +14,8 @@ This document lists common issues encountered while setting up and deploying the
 sudo apt update && sudo apt install make
 ```
 
+---
+
 ## Docker Issues 
 
 ### `Cannot connect to the Docker daemon`
@@ -26,6 +28,8 @@ newgrp docker
 sudo init 6
 ```
 
+---
+
 ## General Debug
 
 ```bash
@@ -36,9 +40,35 @@ ip link show                       # Check interface status
 ping <vxlan gateway>               # Test DC gateway reachability
 ```
 
-### `If you face issues:`
-```bash
-	1.	Re-run `make cleanup-infrastructure`
-	2.	Run `make setup-infrastructure` again
-	3.	Use `make test` to verify setup
-```
+---
+
+### If You Face Issues
+
+Follow these steps to reset and verify your infrastructure:
+
+1. Re-run the cleanup process to remove all VXLAN, routing, and networks:
+
+    ```bash
+    make cleanup-infrastructure
+    ```
+
+2. Set up the infrastructure again from scratch:
+
+    ```bash
+    make setup-infrastructure
+    ```
+
+3. Run all basic tests to ensure everything is working:
+
+    ```bash
+    make test
+    ```
+
+If problems persist, manually inspect the following:
+
+- `ip route show` – Check if routing is correct  
+- `ip link show` – See if VXLAN interfaces are active  
+- `docker ps` – Ensure all containers are running  
+- `docker logs <container>` – View individual container logs
+
+---
