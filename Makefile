@@ -98,7 +98,7 @@ test-services:
 	curl -s http://localhost:8090 | grep "services" || echo "Discovery Service not responding"
 test-cross-dc:
 	@echo "Testing cross-DC reachability (within Docker network)"
-	@ORDER_IP=$$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' order-nginx-dc2); \
+	@ORDER_IP=$$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' order-nginx); \
 	echo "Pinging ORDER Service (DC2) from Gateway (DC1): $$ORDER_IP"; \
 	docker exec gateway-dc1 ping -c 1 $$ORDER_IP || echo "DC1 ➝ DC2 order-nginx not reachable"
 	
