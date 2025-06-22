@@ -2,8 +2,9 @@
 setup-infrastructure:
 	@echo "Setting up full infrastructure..."
 	bash scripts/infrastructure/setup-vxlan.sh
-	bash scripts/infrastructure/configure-routing.sh
+	bash scripts/infrastructure/setup-vxlan-bridge.sh
 	bash scripts/infrastructure/setup-docker-networks.sh
+	bash scripts/infrastructure/configure-routing.sh
 setup-vxlan-mesh:
 	@echo "Creating VXLAN mesh across DCs..."
 	bash scripts/infrastructure/setup-vxlan.sh
@@ -32,9 +33,9 @@ show-routing-table:
 	ip route show
 validate-infrastructure:
 	@echo "Validating connectivity and interfaces..."
-	ping -c 2 10.10.1.1 || echo "DC1 gateway unreachable"
-	ping -c 2 10.20.1.1 || echo "DC2 gateway unreachable"
-	ping -c 2 10.30.1.1 || echo "DC3 gateway unreachable"
+	ping -c 2 10.20.1.1 || echo "DC1 gateway unreachable"
+	ping -c 2 10.30.1.1 || echo "DC2 gateway unreachable"
+	ping -c 2 10.40.1.1 || echo "DC3 gateway unreachable"
 
 # Build
 build-all-images: build-user build-catalog build-gateway build-order build-payment build-notify build-analytics build-discovery
