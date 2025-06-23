@@ -5,9 +5,15 @@ set -e
 # Load configuration
 source configs/network/vxlan-config.sh
 
+echo "Checking prerequisites..."
+if ! command -v docker &> /dev/null; then
+    echo "Docker not installed"
+    exit 1
+fi
+
 if ! ip link show "$PHYSICAL_INTERFACE" > /dev/null 2>&1; then
-  echo "Error: Interface $PHYSICAL_INTERFACE not found."
-  exit 1
+    echo "Interface $PHYSICAL_INTERFACE not found"
+    exit 1
 fi
 
 echo "Configuring VXLAN interfaces..."
