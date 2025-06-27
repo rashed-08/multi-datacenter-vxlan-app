@@ -5,6 +5,8 @@ setup-infrastructure:
 	bash scripts/infrastructure/setup-vxlan-bridge.sh
 	bash scripts/infrastructure/setup-docker-networks.sh
 	bash scripts/infrastructure/configure-routing.sh
+	bash scripts/infrastructure/firewall-setup.sh
+	@echo "Infrastructure setup complete. Use 'make build-all-images' to build all images."
 setup-vxlan-mesh:
 	@echo "Creating VXLAN mesh across DCs..."
 	bash scripts/infrastructure/setup-vxlan.sh
@@ -39,6 +41,7 @@ validate-infrastructure:
 
 # Build
 build-all-images: build-user build-catalog build-gateway build-order build-payment build-notify build-analytics build-discovery
+	@echo "After building, use 'make deploy-services' to deploy all services."
 
 build-user:
 	docker build -f dockerfiles/Dockerfile.user-nginx -t user-nginx .
@@ -60,14 +63,22 @@ build-discovery:
 	docker build -f dockerfiles/Dockerfile.discovery-nginx -t discovery-nginx .
 
 # Deploy
-deploy-services: deploy-dc1-services deploy-dc2-services deploy-dc3-services
+deploy-services: deploy-dc1-services deploy-dc2-services deploy-dc3-services setup-fdb
+	@echo "Deploying services across all data centers..."
+	@echo "Services deployed successfully. Use 'make test' to verify connectivity and functionality."
 
 deploy-dc1-services:
+	@echo "Deploying services in DC1..."
 	bash scripts/deployment/deploy-dc1-services.sh
 deploy-dc2-services:
+	@echo "Deploying services in DC2..."
 	bash scripts/deployment/deploy-dc2-services.sh
 deploy-dc3-services:
+	@echo "Deploying services in DC3..."
 	bash scripts/deployment/deploy-dc3-services.sh
+setup-fdb:
+	@echo "Setting up FDB (Fast Data Bridge) for VXLAN..."
+	bash scripts/infrastructure/setup-fdb.sh
 
 stop-services:
 	docker stop $$(docker ps -q)
