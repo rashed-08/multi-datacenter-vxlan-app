@@ -5,7 +5,7 @@ setup-infrastructure:
 	bash scripts/infrastructure/setup-vxlan-bridge.sh
 	bash scripts/infrastructure/setup-docker-networks.sh
 	bash scripts/infrastructure/configure-routing.sh
-	bash scripts/infrastructure/firewall-setup.sh
+	bash scripts/infrastructure/firewall-rules.sh
 	@echo "Infrastructure setup complete. Use 'make build-all-images' to build all images."
 setup-vxlan-mesh:
 	@echo "Creating VXLAN mesh across DCs..."
