@@ -5,8 +5,6 @@ CPUS="1"
 
 echo "Deploying DC1 services..."
 docker run -d --name gateway-dc1 --network dc1-net -p 80:80 --memory="$MEMORY" --cpus="$CPUS" gateway-nginx:dc1
-docker run -d --name gateway-dc2 --network dc1-net -p 9090:80 --memory="$MEMORY" --cpus="$CPUS" gateway-nginx:dc2
-docker run -d --name gateway-dc3 --network dc1-net -p 9091:80 --memory="$MEMORY" --cpus="$CPUS" gateway-nginx:dc3
 docker run -d --name user-nginx --network dc1-net -p 8080:8080 --memory="$MEMORY" --cpus="$CPUS" user-nginx
 docker run -d --name catalog-nginx --network dc1-net -p 8081:8081 --memory="$MEMORY" --cpus="$CPUS" catalog-nginx
 docker run -d --name order-nginx --network dc1-net -p 8082:8082 --memory="$MEMORY" --cpus="$CPUS"  order-nginx
