@@ -17,7 +17,7 @@ while read -r line; do
   NEXT_HOP=$(echo "$line" | awk '{print $3}')
 
   echo "Adding route: $DEST_SUBNET via $NEXT_HOP (from $SRC_DC)"
-  sudo ip route add "$DEST_SUBNET" via "$NEXT_HOP" 2>/dev/null || \
+  sudo ip route replace "$DEST_SUBNET" via "$NEXT_HOP" 2>/dev/null || \
   echo "Route may already exist or failed for: $DEST_SUBNET"
 
 done < "$ROUTING_FILE"
