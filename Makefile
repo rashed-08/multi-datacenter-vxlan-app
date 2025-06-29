@@ -87,6 +87,10 @@ deploy-load-balancer:
 setup-fdb:
 	@echo "Setting up FDB (Fast Data Bridge) for VXLAN..."
 	bash scripts/infrastructure/setup-fdb.sh
+register-service-to-discovery:
+	@echo "Registering services to Discovery..."
+	bash scripts/deployment/register-to-consul.sh
+	curl http://localhost:8500/v1/agent/services | jq
 
 stop-services:
 	docker stop $$(docker ps -q)
