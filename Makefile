@@ -91,6 +91,7 @@ register-service-to-discovery:
 	@echo "Registering services to Discovery..."
 	bash scripts/deployment/register-to-consul.sh
 	curl http://localhost:8500/v1/agent/services | jq
+	@echo "Browser the Discovery service at http://localhost:8500/ui"
 
 stop-services:
 	docker stop $$(docker ps -q)

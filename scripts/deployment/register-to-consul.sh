@@ -32,12 +32,12 @@ register_service() {
 
 # Register all services
 register_service gateway-dc1 gateway-dc1 80
-register_service gateway-dc2 gateway-dc2 80
-register_service gateway-dc3 gateway-dc3 80
+register_service gateway-dc2 gateway-dc2 19090
+register_service gateway-dc3 gateway-dc3 19091
 register_service user-nginx user-nginx 8080
 register_service catalog-nginx catalog-nginx 8081
 register_service order-nginx order-nginx 8082
-register_service order-nginx-replica order-nginx-replica 8082 8082
+register_service order-nginx-replica order-nginx-replica 8082 18082
 register_service payment-nginx payment-nginx 8083
 register_service notify-nginx notify-nginx 8084
 register_service analytics-nginx analytics-nginx 8085
