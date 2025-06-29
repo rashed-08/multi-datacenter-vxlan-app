@@ -1,46 +1,57 @@
 #!/bin/bash
 set -e
 
-# Map container name → vxlan interface name
+# Map container name → VXLAN interface
 declare -A CONTAINER_TO_VXLAN=(
-  # DC1 services (dc1-net uses vxlan20)
   ["gateway-dc1"]="vxlan20"
-  ["gateway-dc2"]="vxlan20"         # Note: same network dc1-net
-  ["gateway-dc3"]="vxlan20"
   ["user-nginx"]="vxlan20"
   ["catalog-nginx"]="vxlan20"
   ["order-nginx"]="vxlan20"
-
-  # DC2 services (dc2-net uses vxlan30)
+  
+  ["gateway-dc2"]="vxlan30"
   ["payment-nginx"]="vxlan30"
   ["notify-nginx"]="vxlan30"
   ["order-nginx-replica"]="vxlan30"
-
-  # DC3 services (dc3-net uses vxlan40)
+  
+  ["gateway-dc3"]="vxlan40"
   ["analytics-nginx"]="vxlan40"
   ["discovery-nginx"]="vxlan40"
 )
 
-echo "Starting FDB setup..."
+VXLAN_INTERFACES=("vxlan20" "vxlan30" "vxlan40")
 
+declare -A CONTAINER_MACS
+
+echo "Collecting MAC addresses..."
+
+# First collect MACs for all running containers
 for container in "${!CONTAINER_TO_VXLAN[@]}"; do
-  vxlan_if=${CONTAINER_TO_VXLAN[$container]}
-
-  # Check if container running
-  if ! docker ps --format '{{.Names}}' | grep -qw "$container"; then
+  if docker ps --format '{{.Names}}' | grep -qw "$container"; then
+    mac=$(docker exec "$container" cat /sys/class/net/eth0/address 2>/dev/null)
+    if [[ -n "$mac" ]]; then
+      CONTAINER_MACS[$container]=$mac
+    else
+      echo "Failed to get MAC for $container"
+    fi
+  else
     echo "Container $container not running, skipping."
-    continue
   fi
-
-  # Get MAC address
-  mac=$(docker exec "$container" cat /sys/class/net/eth0/address 2>/dev/null)
-  if [[ -z "$mac" ]]; then
-    echo "Failed to get MAC for $container, skipping."
-    continue
-  fi
-
-  echo "Adding/replacing FDB entry: MAC=$mac on interface=$vxlan_if for container=$container"
-  sudo bridge fdb replace "$mac" dev "$vxlan_if" dst 127.0.0.1
 done
 
-echo "FDB setup complete."
+echo ""
+echo "Setting FDB entries across all VXLAN interfaces..."
+
+# For each container MAC, add entry to all VXLAN interfaces (except its own)
+for container in "${!CONTAINER_MACS[@]}"; do
+  mac=${CONTAINER_MACS[$container]}
+  container_if=${CONTAINER_TO_VXLAN[$container]}
+
+  for vxlan_if in "${VXLAN_INTERFACES[@]}"; do
+    if [[ "$vxlan_if" != "$container_if" ]]; then
+      echo "Adding FDB: $mac → $vxlan_if (from $container)"
+      sudo bridge fdb replace "$mac" dev "$vxlan_if" dst 127.0.0.1
+    fi
+  done
+done
+
+echo "FDB full mesh setup complete."
