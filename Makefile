@@ -65,7 +65,7 @@ build-load-balancer:
 	docker build -f services/haproxy-lb/Dockerfile -t order-load-balancer services/haproxy-lb
 
 # Deploy
-deploy-services: deploy-dc1-services deploy-dc2-services deploy-dc3-services setup-fdb generate-haproxy-config deploy-load-balancer
+deploy-services: deploy-dc1-services deploy-dc2-services deploy-dc3-services setup-fdb generate-haproxy-config deploy-load-balancer register-service-to-discovery
 	@echo "Deploying services across all data centers..."
 	@echo "Services deployed successfully. Use 'make test' to verify connectivity and functionality."
 
