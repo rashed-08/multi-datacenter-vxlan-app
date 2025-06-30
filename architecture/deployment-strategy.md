@@ -22,13 +22,14 @@ This deployment is divided into three logical phases.
   - `make deploy-dc2-services`
   - `make deploy-dc3-services`
 - Each service uses individual ports and nginx config
+- Attached to the proper VXLAN-connected Docker bridge
 
 ---
 
 ## Phase 3: Health Check & Cross-DC Test
 
-- Run `make test-connectivity`
-- Run `make test-services`
+- Run `make test`
+- Run `make test-cross-dc`
 - Use curl or browser to test service responses
 - Ensure service discovery (port 8500) returns all expected services
 
@@ -43,6 +44,6 @@ This deployment is divided into three logical phases.
 
 ## Deployment Notes
 
-- Ensure Docker and IP forwarding enabled
-- VXLAN uses multicast group `239.1.1.1`
-- MTU mismatch can cause packet drops — validated via ping with DF
+- Docker must be installed and running
+- Ensure IP forwarding enabled `sudo sysctl -w net.ipv4.ip_forward=1`
+- MTU mismatch can cause packet drops — validated via ping 

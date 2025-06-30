@@ -102,7 +102,9 @@ cleanup-services:
 	docker rmi -f user-nginx catalog-nginx gateway-nginx:dc1 gateway-nginx:dc2 gateway-nginx:dc3 order-nginx payment-nginx notify-nginx analytics-nginx discovery-nginx order-load-balancer || true
 
 # Testing
-test: test-connectivity test-services test-cross-dc health-check
+test: test-connectivity test-services test-cross-dc health-check test-order-dc1 test-order-dc2 test-load-balancer
+	@echo "Connectivity, service responses, cross-DC reachability, and load balancer tests completed."
+	@echo "Use 'make show-logs' to view logs for all services."
 
 test-connectivity:
 	@echo "Pinging Gateways & Services (VXLAN Gateway IPs)"
@@ -142,6 +144,11 @@ test-order-dc2:
 	@ORDER_DC2_IP=$$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' order-nginx-replica); \
 	echo "DC2 Order IP: $$ORDER_DC2_IP"; \
 	curl -s http://$$ORDER_DC2_IP | grep "Order" || echo "Order DC2 (replica) not responding"
+test-load-balancer:
+	@echo "Testing HAProxy load balancer (round‑robin backend)..."
+	@for i in 1 2 3 4 5; do \
+	  curl -s http://localhost:8070/ | jq '.datacenter'; \
+	done || echo "Load balancer not distributing correctly"
 health-check:
 	@echo "Running health checks for all containers..."
 	@docker ps --format "table {{.Names}}\t{{.Status}}" | grep -v "Exited" || echo "Some containers are down"

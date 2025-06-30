@@ -1,4 +1,4 @@
-# 🧱 Service Architecture
+# Service Architecture
 
 This document explains the internal architecture of the microservices running across 3 datacenters.
 
@@ -6,7 +6,7 @@ All services are containerized using Nginx and simulate core components of a dis
 
 ---
 
-## 🧩 Service Breakdown
+## Service Breakdown
 
 | Service           | Description                      | Port | DC(s)      |
 |------------------|----------------------------------|------|------------|
@@ -21,35 +21,5 @@ All services are containerized using Nginx and simulate core components of a dis
 
 ---
 
-## 🌐 Inter-Service Architecture Diagram (Mermaid)
-
-```mermaid
-graph TD
-  A[Gateway-Nginx]
-  A --> B(User-Nginx)
-  A --> C(Catalog-Nginx)
-  A --> D(Order-Nginx)
-  D --> E(Payment-Nginx)
-  D --> F(Notify-Nginx)
-  A --> G(Analytics-Nginx)
-  A --> H(Discovery-Nginx)
-
-  subgraph DC1 [DC1 - North America]
-    A
-    B
-    C
-    D
-  end
-
-  subgraph DC2 [DC2 - Europe]
-    E
-    F
-    D2[Order-Nginx Replica]
-    A2[Gateway-Nginx Backup]
-  end
-
-  subgraph DC3 [DC3 - Asia-Pacific]
-    G
-    H
-    A3[Gateway-Nginx DR]
-  end
+## Service Architecture Diagram 
+![service-architecture](screenshot/service-architecture.png)
